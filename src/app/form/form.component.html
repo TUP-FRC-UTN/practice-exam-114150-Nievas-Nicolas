@@ -1,0 +1,134 @@
+<div class="container mt-4">
+    <h2>Create New Order</h2>
+    <form [formGroup]="orderForm" (ngSubmit)="onSubmit()">
+        <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Nombre:</label>
+              <input type="text" class="form-control" formControlName="customerName"
+              [ngClass]="{'is-invalid': orderForm.controls['customerName'].invalid && orderForm.controls['customerName'].touched,
+                'is-valid':orderForm.controls['customerName'].valid&& orderForm.controls['customerName'].touched
+              }">
+              @if (orderForm.controls['customerName'].invalid && orderForm.controls['customerName'].touched) {
+                @if (orderForm.controls['customerName'].errors?.['required']) {
+                    <div class="invalid-feedback">Nombre es requerido</div>
+                } @else {
+                    <div class="invalid-feedback">Nombre debe tener al menos 3 caracteres</div>
+                }
+              }
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email:</label>
+              <input type="email" class="form-control" formControlName="email"
+              [ngClass]="{'is-invalid': orderForm.controls['email'].invalid && orderForm.controls['email'].touched,
+              'is-valid':orderForm.controls['email'].valid&& orderForm.controls['email'].touched
+              }">
+              @if (orderForm.controls['email'].invalid && orderForm.controls['email'].touched) {
+                @if (orderForm.controls['email'].errors?.['required']) {
+                    <div class="invalid-feedback">Email es requerido</div>
+                } @else {
+                    <div class="invalid-feedback">Formato de email incorrecto</div>
+                }
+              }
+            </div>
+          </div>
+
+          <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Productos</h5>
+                <button type="button" class="btn btn-primary btn-sm" (click)="addProduct()">
+                  <i class="bi bi-plus"></i>
+                </button>
+                </div>
+          
+
+          <div class="card-body">
+            <div formArrayName="products">
+                <!-- <button (click)="addProduct()">Add</button> -->
+                @for (item of products.controls; track $index) {
+                    <div [formGroupName]="$index" class="row mb-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label">Producto</label>
+                            <select class="form-select" formControlName="productId" (change)="onProductSelect($index)">
+                                <option value="">Select Product</option>
+                                @for (prod of availableProducts; track $index) {
+                                    <option [value]="prod.id">{{prod.name}}</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Cantidad</label>
+                            <input type="number" class="form-control" formControlName="quantity" min="1" max="10"
+                            [ngClass]="{'is-invalid': item.get('quantity')!.invalid && item.get('quantity')!.touched,
+                            'is-valid':item.get('quantity')!.valid&& item.get('quantity')!.touched
+                            }">
+                            
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Precio</label>
+                            <input type="number" class="form-control" formControlName="price" readonly>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Stock</label>
+                            <input type="number" class="form-control" formControlName="stock" readonly>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-danger" type="button" (click)="deleteProduct($index)">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                        <!-- intento de validacion xd -->
+                        @if (item.get('quantity')!.errors?.['maxQuantityExceeded']) {
+                          <div class="alert alert-danger">
+                              La cantidad total de productos no puede exceder 10 unidades
+                          </div>
+                        }
+                    </div>
+                }
+                @if (orderForm.controls['products'].errors?.['noProducts']) {
+                  <div class="alert alert-danger">
+                      Debe agregar al menos un producto
+                  </div>
+                }
+                @if (orderForm.controls['products'].errors?.['maxQuantityExceeded']) {
+                  <div class="alert alert-danger">
+                      La cantidad total de productos no puede exceder 10 unidades
+                  </div>
+                }
+            </div>
+          </div>
+        </div>
+
+          <div class="card md-3">
+            <div class="card-header">
+                <h5 class="mb-0">Productos Seleccionados</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    @for (item of selectedProduct(); track $index) {
+                        <li>
+                            {{item.name}} - Cantidad: {{item.quantity}} - Precio: ${{item.price}} - Stock: {{item.stock}}
+                        </li>
+                    }
+                </ul>
+            </div>
+          </div>
+
+          <div class="card mb-3">
+            <div class="card-body">
+                <div  class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Total:</h5>
+                    <h5 class="mb-0">${{calculateTotal()}}</h5>
+                </div>
+                @if (hasDiscount()) {
+                    <small class="text-success">10% descuento aplicado!</small>
+                }
+            </div>
+          </div>
+
+          <div class="text-end">
+            <button type="submit" class="btn btn-primary" [disabled]="!orderForm.valid">
+              Create Order
+            </button>
+          </div>
+    </form>
+</div>

@@ -1,0 +1,54 @@
+<div class="container mt-4">
+    <div class="row mb-3">
+      <div class="col">
+        <h2>Orders</h2>
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col">
+          <div class="input-group">
+            <input 
+              type="text" 
+              class="form-control"
+              [formControl]="searchOrders"
+              placeholder="Search by customer name or email..."
+            >
+          </div>
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-primary" (click)="navigateToForm()">Create New Order</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Código de orden</th>
+                <th>Cliente</th>
+                <th>Email</th>
+                <th>Productos</th>
+                <th>Fecha de compra</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (order of ordersList; track $index) {
+                <tr>
+                  <td>{{order.orderCode}}</td>
+                  <td>{{order.customerName}}</td>
+                  <td>{{order.email}}</td>
+                  <td>{{order.products.length}} items</td>
+                  <td>{{order.timestamp | date:'dd/MM/yyyy'}}</td>
+                  <td>${{order.total.toFixed(2)}}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
